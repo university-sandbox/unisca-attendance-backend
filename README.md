@@ -30,6 +30,7 @@ Start PostgreSQL separately, then run:
 
 ```bash
 uv run python manage.py migrate
+uv run python manage.py seed
 uv run python manage.py runserver 0.0.0.0:8000
 ```
 
@@ -37,6 +38,26 @@ The API will be available at:
 
 ```text
 http://localhost:8000
+```
+
+## Seed Data
+
+Load Spanish demo data with:
+
+```bash
+uv run python manage.py seed
+```
+
+To recreate only the demo data managed by the seed:
+
+```bash
+uv run python manage.py seed --reset
+```
+
+Default demo password:
+
+```text
+Demo12345!
 ```
 
 ## Run With Docker Compose
