@@ -71,6 +71,8 @@ This starts:
 - PostgreSQL on the internal Docker network
 - Django on `http://localhost:8000`
 
+The backend container automatically runs pending migrations before starting Django.
+
 ## Notes
 
 The current bootstrap config points `AUTH_USER_MODEL` to `usuarios.Usuario`. That model is introduced in the next implementation phase, so `migrate`, `manage.py check`, and the backend Docker build will work after the Phase 2 models are added.
