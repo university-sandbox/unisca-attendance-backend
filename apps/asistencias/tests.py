@@ -152,7 +152,7 @@ class AsistenciaAPITests(APITestCase):
             password="password123",
             rol="docente",
         )
-        otro_docente = Docente.objects.create(
+        Docente.objects.create(
             usuario=otro_docente_usuario,
             codigo_docente="DOC-002",
             departamento="Ciencias",
@@ -165,5 +165,6 @@ class AsistenciaAPITests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data, [])
+
 
 # Create your tests here.

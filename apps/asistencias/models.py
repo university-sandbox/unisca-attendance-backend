@@ -11,14 +11,10 @@ class Asistencia(models.Model):
         ("qr+facial", "QR + Facial"),
     ]
 
-    sesion = models.ForeignKey(
-        Sesion, on_delete=models.CASCADE, related_name="asistencias"
-    )
+    sesion = models.ForeignKey(Sesion, on_delete=models.CASCADE, related_name="asistencias")
     estudiante = models.ForeignKey(Estudiante, on_delete=models.CASCADE)
     timestamp_registro = models.DateTimeField(auto_now_add=True)
-    metodo = models.CharField(
-        max_length=20, choices=METODO_CHOICES, default="qr+facial"
-    )
+    metodo = models.CharField(max_length=20, choices=METODO_CHOICES, default="qr+facial")
     face_verified = models.BooleanField(default=False)
 
     class Meta:

@@ -43,15 +43,11 @@ def reset_seed_data():
     student_codes = [item["codigo_estudiante"] for item in ESTUDIANTES]
     teacher_codes = [item["codigo_docente"] for item in DOCENTES]
     course_codes = [item["codigo"] for item in CURSOS]
-    usernames = [
-        item["username"] for item in [*ADMIN_USERS, *DOCENTES, *ESTUDIANTES]
-    ]
+    usernames = [item["username"] for item in [*ADMIN_USERS, *DOCENTES, *ESTUDIANTES]]
 
     Asistencia.objects.filter(
         sesion__qr_token__in=session_tokens,
-        estudiante__codigo_estudiante__in=[
-            item["codigo_estudiante"] for item in ASISTENCIAS
-        ],
+        estudiante__codigo_estudiante__in=[item["codigo_estudiante"] for item in ASISTENCIAS],
     ).delete()
     Sesion.objects.filter(qr_token__in=session_tokens).delete()
     Curso.objects.filter(codigo__in=course_codes).delete()

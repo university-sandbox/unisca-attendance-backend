@@ -21,6 +21,6 @@ class SesionViewSet(viewsets.ModelViewSet):
     permission_classes = [IsDocente]
 
     def get_queryset(self):
-        return Sesion.objects.filter(
-            curso__docente=self.request.user.docente
-        ).select_related("curso")
+        return Sesion.objects.filter(curso__docente=self.request.user.docente).select_related(
+            "curso"
+        )

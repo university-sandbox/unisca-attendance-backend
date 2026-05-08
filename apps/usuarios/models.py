@@ -13,9 +13,7 @@ class Usuario(AbstractUser):
 
 
 class Docente(models.Model):
-    usuario = models.OneToOneField(
-        Usuario, on_delete=models.CASCADE, related_name="docente"
-    )
+    usuario = models.OneToOneField(Usuario, on_delete=models.CASCADE, related_name="docente")
     codigo_docente = models.CharField(max_length=20, unique=True)
     departamento = models.CharField(max_length=100)
 
@@ -24,9 +22,7 @@ class Docente(models.Model):
 
 
 class Estudiante(models.Model):
-    usuario = models.OneToOneField(
-        Usuario, on_delete=models.CASCADE, related_name="estudiante"
-    )
+    usuario = models.OneToOneField(Usuario, on_delete=models.CASCADE, related_name="estudiante")
     codigo_estudiante = models.CharField(max_length=20, unique=True)
     carrera = models.CharField(max_length=100)
     ciclo = models.PositiveIntegerField()

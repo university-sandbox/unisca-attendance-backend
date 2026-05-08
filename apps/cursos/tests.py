@@ -142,4 +142,5 @@ class CursoSesionAPITests(APITestCase):
         self.assertEqual(other_response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(Sesion.objects.filter(curso=curso).count(), 1)
 
+
 # Create your tests here.

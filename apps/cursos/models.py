@@ -6,9 +6,7 @@ from apps.usuarios.models import Docente
 
 
 class Curso(models.Model):
-    docente = models.ForeignKey(
-        Docente, on_delete=models.CASCADE, related_name="cursos"
-    )
+    docente = models.ForeignKey(Docente, on_delete=models.CASCADE, related_name="cursos")
     nombre = models.CharField(max_length=200)
     codigo = models.CharField(max_length=20, unique=True)
     ciclo_academico = models.PositiveIntegerField()
