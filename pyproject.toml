@@ -13,6 +13,7 @@ dependencies = [
     "pillow==10.*",
     "psycopg2-binary==2.*",
     "python-decouple==3.*",
+    "whitenoise==6.*",
 ]
 
 [dependency-groups]
