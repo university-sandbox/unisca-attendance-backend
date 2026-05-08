@@ -99,4 +99,5 @@ class UsuarioMeAPITests(APITestCase):
         self.assertEqual(usuario.first_name, "Augusta")
         self.assertEqual(usuario.rol, "docente")
 
+
 # Create your tests here.

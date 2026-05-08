@@ -3,7 +3,6 @@ from uuid import UUID
 
 from django.utils import timezone
 
-
 NOW = timezone.now()
 
 ADMIN_USERS = [

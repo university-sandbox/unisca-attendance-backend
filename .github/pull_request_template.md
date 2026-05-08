@@ -1,8 +1,8 @@
 ## Summary
-- 
+-
 
 ## Validation
-- 
+-
 
 ## Git Flow
 - Branch:
