@@ -110,7 +110,7 @@ class AsistenciaAPITests(APITestCase):
 
         response = self.client.post(
             reverse("registrar-asistencia"),
-            {"qr_token": str(self.sesion.qr_token)},
+            {"qr_token": str(self.sesion.qr_token), "face_verified": True},
             format="json",
         )
 
@@ -124,11 +124,35 @@ class AsistenciaAPITests(APITestCase):
 
         response = self.client.post(
             reverse("registrar-asistencia"),
+            {"qr_token": str(self.sesion.qr_token), "face_verified": True},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_face_verification_is_required_to_register_attendance(self):
+        self.client.force_authenticate(user=self.estudiante_usuario)
+
+        response = self.client.post(
+            reverse("registrar-asistencia"),
+            {"qr_token": str(self.sesion.qr_token), "face_verified": False},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(Asistencia.objects.count(), 0)
+
+    def test_missing_face_verification_is_rejected(self):
+        self.client.force_authenticate(user=self.estudiante_usuario)
+
+        response = self.client.post(
+            reverse("registrar-asistencia"),
             {"qr_token": str(self.sesion.qr_token)},
             format="json",
         )
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(Asistencia.objects.count(), 0)
 
     def test_docente_lists_attendance_for_owned_session(self):
         Asistencia.objects.create(

@@ -30,7 +30,7 @@ class RegistrarAsistenciaView(generics.CreateAPIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        metodo = "qr+facial" if face_verified else "qr"
+        metodo = "qr+facial"
 
         try:
             with transaction.atomic():
