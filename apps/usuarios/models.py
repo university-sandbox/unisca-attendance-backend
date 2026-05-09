@@ -27,6 +27,7 @@ class Estudiante(models.Model):
     carrera = models.CharField(max_length=100)
     ciclo = models.PositiveIntegerField()
     foto_perfil = models.ImageField(upload_to="fotos_perfil/", null=True, blank=True)
+    foto_perfil_updated_at = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
         return f"{self.usuario.get_full_name()} ({self.codigo_estudiante})"
