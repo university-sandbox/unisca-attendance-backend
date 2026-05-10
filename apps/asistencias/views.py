@@ -1,5 +1,8 @@
 from django.db import IntegrityError, transaction
+from django.utils import timezone
+from django.utils.dateparse import parse_date
 from rest_framework import generics, status
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 
 from apps.asistencias.models import Asistencia
@@ -9,6 +12,12 @@ from apps.asistencias.serializers import (
     AsistenciaListSerializer,
 )
 from apps.cursos.models import Sesion
+
+
+class AsistenciaPagination(PageNumberPagination):
+    page_size = 10
+    page_size_query_param = "page_size"
+    max_page_size = 50
 
 
 class RegistrarAsistenciaView(generics.CreateAPIView):
@@ -65,3 +74,25 @@ class ListarAsistenciaView(generics.ListAPIView):
             sesion_id=self.kwargs["sesion_id"],
             sesion__curso__docente=self.request.user.docente,
         ).select_related("estudiante__usuario")
+
+
+class ListarAsistenciaCursoView(generics.ListAPIView):
+    serializer_class = AsistenciaListSerializer
+    permission_classes = [IsDocente]
+    pagination_class = AsistenciaPagination
+
+    def get_queryset(self):
+        fecha = parse_date(self.request.query_params.get("fecha", ""))
+
+        if fecha is None:
+            fecha = timezone.localdate()
+
+        return (
+            Asistencia.objects.filter(
+                sesion__curso_id=self.kwargs["curso_id"],
+                sesion__curso__docente=self.request.user.docente,
+                timestamp_registro__date=fecha,
+            )
+            .select_related("estudiante__usuario")
+            .order_by("-timestamp_registro", "estudiante__usuario__last_name")
+        )
