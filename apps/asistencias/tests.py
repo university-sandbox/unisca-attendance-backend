@@ -1,6 +1,9 @@
+from datetime import timedelta
+
 from django.db import IntegrityError
 from django.test import TestCase
 from django.urls import reverse
+from django.utils import timezone
 from rest_framework import status
 from rest_framework.test import APITestCase
 
@@ -189,6 +192,73 @@ class AsistenciaAPITests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data, [])
+
+    def test_docente_lists_course_attendance_filtered_by_date(self):
+        asistencia = Asistencia.objects.create(
+            sesion=self.sesion,
+            estudiante=self.estudiante,
+            metodo="qr",
+        )
+        target_date = timezone.localdate() - timedelta(days=1)
+        Asistencia.objects.filter(pk=asistencia.pk).update(
+            timestamp_registro=timezone.now() - timedelta(days=1)
+        )
+        self.client.force_authenticate(user=self.docente.usuario)
+
+        response = self.client.get(
+            reverse("listar-asistencia-curso", kwargs={"curso_id": self.curso.id}),
+            {"fecha": target_date.isoformat()},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["count"], 1)
+        self.assertEqual(response.data["results"][0]["estudiante_codigo"], "EST-001")
+
+    def test_course_attendance_returns_empty_page_without_records_for_date(self):
+        Asistencia.objects.create(
+            sesion=self.sesion,
+            estudiante=self.estudiante,
+            metodo="qr",
+        )
+        self.client.force_authenticate(user=self.docente.usuario)
+
+        response = self.client.get(
+            reverse("listar-asistencia-curso", kwargs={"curso_id": self.curso.id}),
+            {"fecha": (timezone.localdate() - timedelta(days=3)).isoformat()},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["count"], 0)
+        self.assertEqual(response.data["results"], [])
+
+    def test_course_attendance_is_paginated(self):
+        for index in range(12):
+            usuario = Usuario.objects.create_user(
+                username=f"estudiante-page-{index}",
+                password="password123",
+                first_name="Student",
+                last_name=f"{index:02d}",
+                rol="estudiante",
+            )
+            estudiante = Estudiante.objects.create(
+                usuario=usuario,
+                codigo_estudiante=f"EST-P{index:03d}",
+                carrera="Sistemas",
+                ciclo=5,
+            )
+            sesion = Sesion.objects.create(curso=self.curso)
+            Asistencia.objects.create(sesion=sesion, estudiante=estudiante)
+
+        self.client.force_authenticate(user=self.docente.usuario)
+
+        response = self.client.get(
+            reverse("listar-asistencia-curso", kwargs={"curso_id": self.curso.id}),
+            {"fecha": timezone.localdate().isoformat()},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["count"], 12)
+        self.assertEqual(len(response.data["results"]), 10)
 
 
 # Create your tests here.
