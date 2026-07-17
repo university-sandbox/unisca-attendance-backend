@@ -87,6 +87,16 @@ The volume is required because the Docker image intentionally excludes `media/`.
 Without it, uploaded profile photos are lost when Dokploy replaces the container
 during a deployment.
 
+### Facial-verification diagnostics
+
+The backend writes one `face_verification` entry for each significant browser
+step: start, models loaded, reference image loaded, camera started, success, or
+failure. In Dokploy, filter the application logs by `face_verification`.
+
+Failure entries include the student code, current stage, frontend and image
+origins, plus the browser error name and message. They never include the QR
+token, profile image URL, image contents, or facial descriptors.
+
 ## Notes
 
 The current bootstrap config points `AUTH_USER_MODEL` to `usuarios.Usuario`. That model is introduced in the next implementation phase, so `migrate`, `manage.py check`, and the backend Docker build will work after the Phase 2 models are added.

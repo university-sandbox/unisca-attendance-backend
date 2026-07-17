@@ -1,17 +1,23 @@
+import logging
+
 from django.db import IntegrityError, transaction
 from django.utils import timezone
 from django.utils.dateparse import parse_date
 from rest_framework import generics, status
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from apps.asistencias.models import Asistencia
 from apps.asistencias.permissions import IsDocente, IsEstudiante
 from apps.asistencias.serializers import (
     AsistenciaCreateSerializer,
     AsistenciaListSerializer,
+    FaceVerificationDiagnosticSerializer,
 )
 from apps.cursos.models import Sesion
+
+logger = logging.getLogger(__name__)
 
 
 class AsistenciaPagination(PageNumberPagination):
@@ -63,6 +69,31 @@ class RegistrarAsistenciaView(generics.CreateAPIView):
             },
             status=status.HTTP_201_CREATED,
         )
+
+
+class FaceVerificationDiagnosticView(APIView):
+    """Record browser-side facial-verification milestones in server logs."""
+
+    permission_classes = [IsEstudiante]
+
+    def post(self, request, *args, **kwargs):
+        serializer = FaceVerificationDiagnosticSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        data = serializer.validated_data
+
+        logger.info(
+            "face_verification event=%s user_id=%s student_code=%s stage=%s "
+            "client_origin=%s reference_image_origin=%s error_name=%s error_message=%s",
+            data["event"],
+            request.user.id,
+            request.user.estudiante.codigo_estudiante,
+            data.get("stage", ""),
+            data.get("client_origin", ""),
+            data.get("reference_image_origin", ""),
+            data.get("error_name", ""),
+            data.get("error_message", ""),
+        )
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class ListarAsistenciaView(generics.ListAPIView):

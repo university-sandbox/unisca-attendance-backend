@@ -157,6 +157,39 @@ class AsistenciaAPITests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(Asistencia.objects.count(), 0)
 
+    def test_estudiante_face_diagnostic_is_recorded_in_server_logs(self):
+        self.client.force_authenticate(user=self.estudiante_usuario)
+
+        with self.assertLogs("apps.asistencias.views", level="INFO") as logs:
+            response = self.client.post(
+                reverse("face-verification-diagnostics"),
+                {
+                    "event": "verification_failed",
+                    "stage": "loading_reference_image",
+                    "client_origin": "https://app.example.com",
+                    "reference_image_origin": "https://api.example.com",
+                    "error_name": "TypeError",
+                    "error_message": "Failed to fetch",
+                },
+                format="json",
+            )
+
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertIn("event=verification_failed", logs.output[0])
+        self.assertIn("student_code=EST-001", logs.output[0])
+        self.assertIn("stage=loading_reference_image", logs.output[0])
+
+    def test_docente_cannot_report_face_diagnostics(self):
+        self.client.force_authenticate(user=self.docente.usuario)
+
+        response = self.client.post(
+            reverse("face-verification-diagnostics"),
+            {"event": "verification_started"},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
     def test_docente_lists_attendance_for_owned_session(self):
         Asistencia.objects.create(
             sesion=self.sesion,

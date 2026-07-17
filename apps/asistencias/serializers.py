@@ -2,6 +2,15 @@ from rest_framework import serializers
 
 from apps.asistencias.models import Asistencia
 
+FACE_VERIFICATION_DIAGNOSTIC_EVENTS = [
+    "verification_started",
+    "models_loaded",
+    "reference_image_loaded",
+    "camera_started",
+    "verification_succeeded",
+    "verification_failed",
+]
+
 
 class AsistenciaCreateSerializer(serializers.Serializer):
     qr_token = serializers.UUIDField()
@@ -14,6 +23,17 @@ class AsistenciaCreateSerializer(serializers.Serializer):
             )
 
         return value
+
+
+class FaceVerificationDiagnosticSerializer(serializers.Serializer):
+    event = serializers.ChoiceField(choices=FACE_VERIFICATION_DIAGNOSTIC_EVENTS)
+    stage = serializers.CharField(max_length=64, required=False, allow_blank=True)
+    client_origin = serializers.CharField(max_length=255, required=False, allow_blank=True)
+    reference_image_origin = serializers.CharField(
+        max_length=255, required=False, allow_blank=True
+    )
+    error_name = serializers.CharField(max_length=128, required=False, allow_blank=True)
+    error_message = serializers.CharField(max_length=500, required=False, allow_blank=True)
 
 
 class AsistenciaListSerializer(serializers.ModelSerializer):

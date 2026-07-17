@@ -1,12 +1,18 @@
 from django.urls import path
 
 from apps.asistencias.views import (
+    FaceVerificationDiagnosticView,
     ListarAsistenciaCursoView,
     ListarAsistenciaView,
     RegistrarAsistenciaView,
 )
 
 urlpatterns = [
+    path(
+        "asistencias/face-verification-diagnostics/",
+        FaceVerificationDiagnosticView.as_view(),
+        name="face-verification-diagnostics",
+    ),
     path(
         "asistencias/",
         RegistrarAsistenciaView.as_view(),
