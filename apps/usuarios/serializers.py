@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.utils import timezone
 from rest_framework import serializers
 
@@ -86,7 +87,13 @@ class UsuarioMeSerializer(serializers.ModelSerializer):
         if request is None:
             return foto_perfil.url
 
-        return request.build_absolute_uri(foto_perfil.url)
+        photo_url = request.build_absolute_uri(foto_perfil.url)
+        if getattr(settings, "FORCE_HTTPS_MEDIA_URLS", False) and photo_url.startswith(
+            "http://"
+        ):
+            return f"https://{photo_url.removeprefix('http://')}"
+
+        return photo_url
 
     def get_foto_perfil_updated_at(self, obj):
         estudiante = self._get_estudiante(obj)

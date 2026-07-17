@@ -61,7 +61,7 @@ class UsuarioMeAPITests(APITestCase):
 
     @override_settings(
         ALLOWED_HOSTS=["api-unisca.nexoralabs.com"],
-        SECURE_PROXY_SSL_HEADER=("HTTP_X_FORWARDED_PROTO", "https"),
+        FORCE_HTTPS_MEDIA_URLS=True,
     )
     def test_returns_authenticated_user_profile_with_photo_url(self):
         usuario = Usuario.objects.create_user(
@@ -84,7 +84,6 @@ class UsuarioMeAPITests(APITestCase):
         response = self.client.get(
             reverse("usuario-me"),
             HTTP_HOST="api-unisca.nexoralabs.com",
-            HTTP_X_FORWARDED_PROTO="https",
         )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
