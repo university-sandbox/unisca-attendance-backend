@@ -1,7 +1,7 @@
 from datetime import timedelta
 
 from django.core.files.uploadedfile import SimpleUploadedFile
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
 from rest_framework import status
@@ -59,6 +59,10 @@ class UsuarioMeAPITests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
+    @override_settings(
+        ALLOWED_HOSTS=["api-unisca.nexoralabs.com"],
+        SECURE_PROXY_SSL_HEADER=("HTTP_X_FORWARDED_PROTO", "https"),
+    )
     def test_returns_authenticated_user_profile_with_photo_url(self):
         usuario = Usuario.objects.create_user(
             username="estudiante1",
@@ -77,12 +81,19 @@ class UsuarioMeAPITests(APITestCase):
         )
         self.client.force_authenticate(user=usuario)
 
-        response = self.client.get(reverse("usuario-me"))
+        response = self.client.get(
+            reverse("usuario-me"),
+            HTTP_HOST="api-unisca.nexoralabs.com",
+            HTTP_X_FORWARDED_PROTO="https",
+        )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["username"], "estudiante1")
         self.assertEqual(response.data["rol"], "estudiante")
-        self.assertTrue(response.data["foto_perfil"].endswith("/media/fotos_perfil/grace.jpg"))
+        self.assertEqual(
+            response.data["foto_perfil"],
+            "https://api-unisca.nexoralabs.com/media/fotos_perfil/grace.jpg",
+        )
         self.assertEqual(response.data["codigo_estudiante"], "EST-001")
         self.assertEqual(response.data["carrera"], "Sistemas")
         self.assertEqual(response.data["ciclo"], 5)
